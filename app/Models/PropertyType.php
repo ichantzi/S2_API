@@ -9,6 +9,8 @@ class PropertyType extends Model
 {
 
     protected $hidden = ['pivot'];
+    protected $table = 'property_types';
+
 
     function properties(){
         $this->belongsToMany(Property::class);

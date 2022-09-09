@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class PropertyPropertyType extends Model
 {
-    use HasFactory;
+    protected $table = 'property_property_types';
 }
