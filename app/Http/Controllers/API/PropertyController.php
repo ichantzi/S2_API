@@ -8,7 +8,7 @@ use App\Repositories\PropertyRepository;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
 
 class PropertyController extends Controller
 {
@@ -36,7 +36,7 @@ class PropertyController extends Controller
     {
         try
         {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'location' => 'array',
                 'availability' => [
                     'required',
@@ -48,7 +48,20 @@ class PropertyController extends Controller
                 'max_square_meters' => 'integer|max:10000',
                 'type' => 'array',
 
+            ], [
+                'array' => ':attribute must be an array',
+                'integer' => ':attribute must be an integer',
+                'min_price.min' => ':attribute must be bigger than 10',
+                'max_price.max' => ':attribute must be less than 10000000',
+                'min_square_meters' => ":attribute must be bigger than 20",
+                'max_square_meters' => ":attribute must be smaller than 10000",
+                'in' => 'The :attribute must be one of the following types: :values'
+
             ]);
+
+            if ($validator->fails()){
+                return response()->json($validator->errors());
+            }
 
             $data = $request->all();
             $results = $this->propertyRepository->index($data);
