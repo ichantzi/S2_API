@@ -4,10 +4,29 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Property;
+use App\Repositories\PropertyRepository;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class PropertyController extends Controller
 {
+    /**
+     * @var PropertyRepository
+     */
+    private PropertyRepository $propertyRepository;
+
+    /**
+     * PropertyController constructor.
+     *
+     * @param PropertyRepository $propertyRepository
+     */
+    public function __construct(PropertyRepository $propertyRepository)
+    {
+        $this->propertyRepository = $propertyRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,50 +34,29 @@ class PropertyController extends Controller
      */
     public function index(Request $request)
     {
-        $data = $request->all();
-
-        $q = Property::query()->with('types:type')->toarray();
-
-        if (isset($data['location']))
-        {$q->where('location','=', $data['location']);
-        }
-        if (isset($data['availability']))
+        try
         {
-            $q->where('availability','=', $data['availability']);
+            $request->validate([
+                'location' => 'array',
+                'availability' => [
+                    'required',
+                    Rule::in(['Sale', 'Rent']),
+                ],
+                'min_price' => 'integer|min:10',
+                'max_price' => 'integer|max:10000000',
+                'min_square_meters' => 'integer|min:20',
+                'max_square_meters' => 'integer|max:10000',
+                'type' => 'array',
+
+            ]);
+
+            $data = $request->all();
+            $results = $this->propertyRepository->index($data);
+
+            return response()->json($results);
+        } catch(QueryException $e) {
+            return response()->json($e->getMessage());
         }
-        if (isset($data['min_price']))
-        {
-            $q->where('price','>=', $data['min_price']);
-
-        }
-        if (isset($data['max_price']))
-        {
-            $q->where('price','<=', $data['max_price']);
-
-        }
-        if (isset($data['min_square_meters']))
-        {
-            $q->where('square_meters','>=', $data['min_square_meters']);
-
-        }
-        if (isset($data['max_square_meters']))
-        {
-            $q->where('square_meters','<=', $data['max_square_meters']);
-
-        }
-
-//        $tempResults = $q->get();
-//        if (isset($data['type']))
-//        {
-//            foreach ($tempResults as $temp){
-//                if ($temp->types['type'])
-//            }
-//        }
-
-        $results = $q->get();
-
-        return response()->json($results);
-
     }
 
 }
