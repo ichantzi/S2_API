@@ -19,9 +19,9 @@ BEARER_TOKEN = eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vZGVtby5j
 
 - run the following commands to your terminal, in the project's directory:
 
-php artisan migrate
-php artisan db:seed
-php artisan serve (to serve in localhost - 127.0.0.1:8000)
+- php artisan migrate
+- php artisan db:seed
+- php artisan serve (to serve in localhost - 127.0.0.1:8000)
 
 the url invoking the endpoint is /api/properties
 
