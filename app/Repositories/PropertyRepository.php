@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Classes\ResponseClass;
 use App\Models\Property;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class PropertyRepository
 {
@@ -44,12 +45,12 @@ class PropertyRepository
 
             }
             if (isset($data['type'])) {
-                $types = $data['type'];
                 $q->whereRelation('types', 'type', '=', $data['type']);
             }
 
             $response->object = $q->get();
             $response->message = 'Success';
+            Log::channel('stats')->info('The following data were successfully searched', $data);
         } catch (QueryException $e) {
             $response->error = true;
             $response->message = $e->getMessage();
